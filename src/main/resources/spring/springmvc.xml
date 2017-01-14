@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                        http://www.springframework.org/schema/mvc
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+    <!--注解扫描-->
+    <context:component-scan base-package="ssm.controller"/>
+
+
+    <!--处理器适配器 所有的处理器适配器都实现了 HandlerAdapter 接口
+    处理器适配器 只能处理 实现了 Controller 接口的 handle
+    按照 handle  要求的规则执行 handle
+    -->
+    <!--<bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>-->
+
+    <!--<bean class="org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"/>-->
+
+    <!--处理器映射器 将bean 的name  作为 url  进行查找
+    根据 url 找 handle
+    -->
+    <!--<bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>-->
+
+
+    <!--视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"/>
+
+    <!--注解的 处理器适配器-->
+    <!--<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"/>-->
+
+    <!--注解的 处理器适配器-->
+    <!--<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>-->
+
+    <!--代替上面的 注解适配器 和注解解析器-->
+    <!--conversion-service 添加 自定义参数绑定 -->
+    <!--validator 校验器-->
+    <mvc:annotation-driven conversion-service="myConversionService"
+    validator="validator"
+    />
+
+    <!--拦截器配置-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="ssm.intercept.DataIntercept"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <!--/**表示拦截所有url  包括 子 url-->
+            <mvc:mapping path="/**"/>
+            <bean class="ssm.intercept.HandleIntercept"/>
+        </mvc:interceptor>
+
+    </mvc:interceptors>
+
+
+    <!--自定义 参数 绑定 -->
+    <bean id="myConversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="converters">
+            <bean class="ssm.controller.converter.CustomDataConverter"/>
+        </property>
+    </bean>
+
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>ValidationMessagess</value>
+            </list>
+        </property>
+        <property name="useCodeAsDefaultMessage" value="true" />
+        <property name="fileEncodings" value="utf-8"/>
+    </bean>
+    <!--校验器 -->
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+        <property name="providerClass" value="org.hibernate.validator.HibernateValidator" />
+        <!--这里配置将使用上面国际化配置的messageSource 在文件中配合i 校验错误信息 -->
+        <property name="validationMessageSource" ref="messageSource" />
+    </bean>
+
+
+    <!--&lt;!&ndash;事务控制&ndash;&gt;-->
+    <!--<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <!--<property name="dataSource" ref="dataSource"/>-->
+    <!--</bean>-->
+
+
+    <!--&lt;!&ndash;配置通知&ndash;&gt;-->
+    <!--<tx:advice id="txAdvice" transaction-manager="transactionManager">-->
+        <!--<tx:attributes>-->
+            <!--<tx:method name="save*" propagation="REQUIRED"/>-->
+            <!--<tx:method name="insert*" propagation="REQUIRED"/>-->
+            <!--<tx:method name="delete*" propagation="REQUIRED"/>-->
+            <!--<tx:method name="update*" propagation="REQUIRED"/>-->
+
+            <!--<tx:method name="find*" propagation="SUPPORTS" read-only="true"/>-->
+            <!--<tx:method name="get*" propagation="SUPPORTS" read-only="true"/>-->
+            <!--<tx:method name="select*" propagation="SUPPORTS" read-only="true"/>-->
+            <!--<tx:method name="query*" propagation="SUPPORTS" read-only="true"/>-->
+        <!--</tx:attributes>-->
+    <!--</tx:advice>-->
+
+    <!--<aop:config>-->
+        <!--&lt;!&ndash;pointcut 配置切面&ndash;&gt;-->
+        <!--<aop:advisor advice-ref="txAdvice" pointcut="execution(* ssm.service.impl.*.*(..))"/>-->
+    <!--</aop:config>-->
+</beans>

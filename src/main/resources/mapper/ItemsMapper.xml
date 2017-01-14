@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="ssm.dao.ItemsMapper" >
+  <resultMap id="BaseResultMap" type="ssm.po.Items" >
+    <constructor >
+      <idArg column="_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="_price" jdbcType="INTEGER" javaType="java.lang.Integer" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    _id, _name, _price
+  </sql>
+
+  <sql id="query_item_where">
+    <if test="itemsCustom!=null and itemsCustom.name!=null">
+      items.name LIKE  '%${itemCustom.name}%'
+    </if>
+  </sql>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from items
+    where _id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from items
+    where _id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="ssm.po.Items" >
+    insert into items (_id, _name, _price
+      )
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{price,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="ssm.po.Items" >
+    insert into items
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        _id,
+      </if>
+      <if test="name != null" >
+        _name,
+      </if>
+      <if test="price != null" >
+        _price,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="ssm.po.Items" >
+    update items
+    <set >
+      <if test="name != null" >
+        _name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        _price = #{price,jdbcType=INTEGER},
+      </if>
+    </set>
+    where _id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="ssm.po.Items" >
+    update items
+    set _name = #{name,jdbcType=VARCHAR},
+      _price = #{price,jdbcType=INTEGER}
+    where _id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="queryItems" resultMap="BaseResultMap" >
+    SELECT * FROM items;
+  </select>
+</mapper>
